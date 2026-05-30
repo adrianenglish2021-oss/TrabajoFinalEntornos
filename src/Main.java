@@ -19,7 +19,8 @@ public class Main {
             System.out.println("3. Ver próximas alarmas");
             System.out.println("4. Simular que suena una alarma");
             System.out.println("5. Ver perfil de estadísticas");
-            System.out.println("6. Salir");
+            System.out.println("6. Configurar sonido y volumen");
+            System.out.println("7. Salir");
             System.out.print("Elige una opción: ");
 
             String opcion = scanner.nextLine();
@@ -50,6 +51,9 @@ public class Main {
                     gestor.getEstadisticas().imprimirEstadisticas();
                     break;
                 case "6":
+                    configurarSonido(gestor, scanner);
+                    break;
+                case "7":
                     salir = true;
                     System.out.println("Apagando despertador... ¡Hasta la próxima!");
                     break;
@@ -88,17 +92,52 @@ public class Main {
         }
     }
 
+    private static void configurarSonido(GestorAlarmas gestor, Scanner scanner) {
+        if (gestor.getProximasAlarmas().isEmpty()) {
+            System.out.println("No hay alarmas creadas para configurar.");
+            return;
+        }
+        
+        System.out.print("Introduce el ID de la alarma a modificar: ");
+        String id = scanner.nextLine();
+        
+        Alarma alarmaModificar = null;
+        for (Alarma a : gestor.getProximasAlarmas()) {
+            if (a.getId().equals(id)) {
+                alarmaModificar = a;
+                break;
+            }
+        }
+        
+        if (alarmaModificar == null) {
+            System.out.println("Error: No se encontró la alarma con ID " + id);
+            return;
+        }
+        
+        System.out.print("Introduce el nuevo nivel de volumen (1-10): ");
+        try {
+            int vol = Integer.parseInt(scanner.nextLine());
+            alarmaModificar.setVolumen(vol);
+        } catch (NumberFormatException e) {
+            System.out.println("Error: Debes introducir un número.");
+        }
+        
+        System.out.print("Introduce el nombre del nuevo tono (ej. Pajaritos, Rock): ");
+        String tono = scanner.nextLine();
+        alarmaModificar.setTonoSonido(tono);
+        
+        System.out.println("¡Sonido y volumen actualizados correctamente!");
+    }
+
     private static void simularAlarmaSonando(GestorAlarmas gestor, Scanner scanner) {
         if (gestor.getProximasAlarmas().isEmpty()) {
             System.out.println("No hay alarmas para hacer sonar.");
             return;
         }
         
-        // Hacemos sonar la primera alarma por defecto para simular
         Alarma alarmaActual = gestor.getProximasAlarmas().get(0);
         gestor.dispararAlarma(alarmaActual);
 
-        // Si tiene reto matemático, le obligamos a responder
         if (alarmaActual.getRetoMatematico() != null) {
             boolean retoSuperado = false;
             while (!retoSuperado) {
