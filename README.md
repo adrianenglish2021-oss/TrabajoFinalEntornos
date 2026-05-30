@@ -102,6 +102,7 @@ graph LR
     E(Detener Alarma)
     F(Consultar Estadísticas)
     G(Resolver Reto Matemático)
+    H(Configurar Sonido y Volumen)
 
     U --> A
     U --> B
@@ -109,6 +110,7 @@ graph LR
     U --> D
     U --> E
     U --> F
+    U --> H
 
     E -.->|<<extend>>| G
 ```
@@ -160,6 +162,8 @@ Aquí se demuestra el funcionamiento interactivo por consola, la captura de erro
 ![Captura 4](./docs/java4.png)
 ![Captura 5](./docs/java5.png)
 ![Captura 6](./docs/java6.png)
+Aqui añadimos un nueva funcionalidad para personalizar aun más las alarmas.
+![Captura 7](./docs/java7.png)
 
 ## 13. Autoevaluación
 
