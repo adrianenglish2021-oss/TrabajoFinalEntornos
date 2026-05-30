@@ -160,3 +160,17 @@ Aquí se demuestra el funcionamiento interactivo por consola, la captura de erro
 ![Captura 4](./docs/java4.png)
 ![Captura 5](./docs/java5.png)
 ![Captura 6](./docs/java6.png)
+
+## 13. Autoevaluación
+
+Basándome en los criterios de la rúbrica, esta es mi autoevaluación del proyecto:
+
+| Criterio | Peso | Autoevaluación y Justificación | Nota Estimada |
+| :--- | :---: | :--- | :---: |
+| **Diseño orientado a objetos** | 25% | Se han respetado los principios SOLID (especialmente SRP). Hay un claro desacoplamiento entre los datos (`Alarma`), el controlador (`GestorAlarmas`) y las funcionalidades extra (`RetoMatematico`), usando composición y agregación. | **10 / 10** |
+| **Calidad del código** | 20% | Código limpio, modular y estructurado. Se utiliza la API moderna `java.time` y se aplica programación defensiva (control de excepciones con `try-catch`) para evitar cuelgues del programa. | **10 / 10** |
+| **Uso correcto de Git/GitHub** | 15% | Se ha mantenido un historial local y remoto coherente, utilizando buenas prácticas como la separación en ramas (`main`, `develop`, `features`) y realizando *merges* al finalizar las funcionalidades. | **10 / 10** |
+| **Diagramas UML** | 15% | Diagramas de Clases y Casos de Uso integrados directamente mediante código Mermaid, reflejando con exactitud la arquitectura final y las multiplicidades. | **10 / 10** |
+| **Especificación de casos de uso** | 10% | Redactados de forma detallada, contemplando precondiciones, reglas de negocio y flujos alternativos frente a errores del usuario. | **10 / 10** |
+| **Documentación README** | 10% | Documento profesional, estructurado jerárquicamente, fácil de leer y con evidencias visuales (capturas) del funcionamiento del programa. | **10 / 10** |
+| **Reflexión sobre IA** | 5% | Reflexión transparente y analítica, destacando no solo el código generado, sino los fallos de la IA y cómo se corrigieron manualmente. | **10 / 10** |
