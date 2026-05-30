@@ -27,11 +27,11 @@ Este proyecto implementa la lógica de backend en Java para un despertador intel
   └── README.md
 
 ## 6. Diseño Orientado a Objetos
-El diseño consta de las siguientes clases principales:
-- **`Alarma`**: Actúa como el modelo de datos principal. Encapsula información como la hora, etiqueta, días de repetición y configuraciones avanzadas.
-- **`GestorAlarmas`**: Es el controlador central. Gestiona la lista de alarmas (crear, borrar, listar) e interactúa con otras clases para disparar o posponer alarmas.
-- **`EstadisticasSueno`**: Acumula datos históricos del usuario basándose en los eventos (snooze/stop) que le envía el `GestorAlarmas`.
-- **`RetoMatematico` y `ConfiguracionCircadiana`**: Clases auxiliares inyectadas por composición dentro de `Alarma`, respetando el principio de Responsabilidad Única (SRP).
+El sistema se ha diseñado buscando la alta cohesión y el bajo acoplamiento. Las clases principales y sus responsabilidades son:
+- **`Alarma`**: Modelo de datos principal. Su responsabilidad es mantener la coherencia de sus propios datos (hora, estado, días de repetición semanales, volumen y tono de sonido).
+- **`GestorAlarmas`**: Es el controlador central del sistema. Su responsabilidad es gestionar el ciclo de vida de la colección de alarmas (crear, eliminar, listar, editar) e interactuar con el resto de componentes para dispararlas o posponerlas.
+- **`EstadisticasSueno`**: Entidad encargada exclusivamente de acumular y procesar datos históricos del usuario, respetando el Principio de Responsabilidad Única (SRP).
+- **`RetoMatematico` y `ConfiguracionCircadiana`**: Clases auxiliares que encapsulan funcionalidades avanzadas. Existen para evitar que la clase `Alarma` se convierta en una "clase Dios" (God Object) llena de atributos inactivos.
 
 ## 7. Diagrama de Clases UML (Mermaid)
 
@@ -55,7 +55,11 @@ classDiagram
         -boolean estaActiva
         -Set~Integer~ diasActivos
         -int volumen
+        -String tonoSonido
         +setDiasRepeticion(Set)
+        +getDiasFormateados() String
+        +setVolumen(int)
+        +setTonoSonido(String)
         +alternarActivacion()
         +setConfiguracionCircadiana(ConfiguracionCircadiana)
         +setRetoMatematico(RetoMatematico)
@@ -87,7 +91,12 @@ classDiagram
     Alarma "1" o-- "0..1" RetoMatematico : puede tener >
     Alarma "1" o-- "0..1" ConfiguracionCircadiana : puede tener >
 ```
-*Justificación:* Se ha utilizado composición (`*--`) para la relación entre el Gestor y las alarmas, ya que el gestor controla su ciclo de vida lógico en memoria. Se ha utilizado agregación (`o--`) para las configuraciones avanzadas dentro de la alarma, ya que son opcionales.
+
+### Justificación detallada del diseño
+- **Relaciones:** - Se ha implementado **Composición (`*--`)** entre `GestorAlarmas`, `Alarma` y `EstadisticasSueno`. El gestor es el dueño de estos objetos; si el gestor se destruye, la lista de alarmas en memoria y las estadísticas de esa sesión desaparecen, ya que su ciclo de vida depende de él.
+  - Se ha implementado **Agregación (`o--`)** para `RetoMatematico` y `ConfiguracionCircadiana` respecto a la `Alarma`. Son dependencias opcionales que se inyectan a la alarma solo si el usuario decide activarlas (`0..1`), lo que optimiza el uso de memoria.
+- **Visibilidad y Encapsulación:** - Se ha aplicado un estricto control de visibilidad: todos los atributos estructurales y de estado (como `hora`, `volumen`, `diasActivos`, `tonoSonido`) son **privados (`-`)**.
+  - La interacción externa se realiza exclusivamente a través de métodos **públicos (`+`)** (Getters, Setters y métodos de acción). Esto garantiza la integridad de los datos; por ejemplo, el método `setVolumen(int)` encapsula la lógica de validación para impedir que el sistema asigne un volumen inferior a 1 o superior a 10, lo cual sería imposible de asegurar si el atributo fuera público.
 
 ## 8. Diagrama de Casos de Uso (Mermaid)
 
@@ -103,6 +112,7 @@ graph LR
     F(Consultar Estadísticas)
     G(Resolver Reto Matemático)
     H(Configurar Sonido y Volumen)
+    I(Configurar Repetición Semanal)
 
     U --> A
     U --> B
@@ -111,6 +121,7 @@ graph LR
     U --> E
     U --> F
     U --> H
+    U --> I
 
     E -.->|<<extend>>| G
 ```
@@ -162,7 +173,6 @@ Aquí se demuestra el funcionamiento interactivo por consola, la captura de erro
 ![Captura 4](./docs/java4.png)
 ![Captura 5](./docs/java5.png)
 ![Captura 6](./docs/java6.png)
-Aqui añadimos un nueva funcionalidad para personalizar aun más las alarmas.
 ![Captura 7](./docs/java7.png)
 
 ## 13. Autoevaluación

@@ -8,11 +8,11 @@ public class Alarma {
     private String etiqueta;
     private LocalTime hora;
     private boolean estaActiva;
-    private Set<Integer> diasActivos;
+    private Set<Integer> diasActivos; // 1=Lunes, 7=Domingo
     
-    // --- NUEVAS FUNCIONALIDADES: SONIDO Y VOLUMEN ---
-    private int volumen; // Nivel de 1 a 10
-    private String tonoSonido; // Nombre del tono (ej. "Radar", "Pájaros")
+    // Funcionalidades de Sonido
+    private int volumen;
+    private String tonoSonido;
     
     // Funcionalidades avanzadas (Agregación)
     private RetoMatematico retoMatematico;
@@ -24,9 +24,7 @@ public class Alarma {
         this.etiqueta = etiqueta;
         this.hora = hora;
         this.estaActiva = true;
-        this.diasActivos = new HashSet<>();
-        
-        // Valores por defecto para que no dé error si el usuario no los cambia
+        this.diasActivos = new HashSet<>(); // Por defecto vacío (Suena 1 sola vez)
         this.volumen = 5; 
         this.tonoSonido = "Radar (Predeterminado)";
     }
@@ -45,46 +43,54 @@ public class Alarma {
         this.diasActivos = diasActivos;
     }
 
-    // --- MÉTODOS DE SONIDO PERSONALIZADO Y VOLUMEN ---
+    // --- MÉTODOS DE SONIDO Y VOLUMEN ---
     public int getVolumen() { return volumen; }
-    
     public void setVolumen(int volumen) {
-        if (volumen >= 1 && volumen <= 10) {
-            this.volumen = volumen;
-        } else {
-            System.out.println("Error: El volumen debe estar entre 1 y 10.");
-        }
+        if (volumen >= 1 && volumen <= 10) this.volumen = volumen;
+        else System.out.println("Error: El volumen debe estar entre 1 y 10.");
     }
-
     public String getTonoSonido() { return tonoSonido; }
-    
-    public void setTonoSonido(String tonoSonido) {
-        this.tonoSonido = tonoSonido;
-    }
+    public void setTonoSonido(String tonoSonido) { this.tonoSonido = tonoSonido; }
 
-    // --- MÉTODOS PARA FUNCIONALIDADES AVANZADAS ---
+    // --- MÉTODOS DE RETOS Y CIRCADIANO ---
     public RetoMatematico getRetoMatematico() { return retoMatematico; }
-    
-    public void setRetoMatematico(RetoMatematico retoMatematico) {
-        this.retoMatematico = retoMatematico;
-    }
-
+    public void setRetoMatematico(RetoMatematico retoMatematico) { this.retoMatematico = retoMatematico; }
     public ConfiguracionCircadiana getConfiguracionCircadiana() { return configuracionCircadiana; }
-    
     public void setConfiguracionCircadiana(ConfiguracionCircadiana configuracionCircadiana) {
         this.configuracionCircadiana = configuracionCircadiana;
     }
 
-    // --- MÉTODO PARA IMPRIMIR LA ALARMA (Actualizado con Volumen y Tono) ---
+    // --- LÓGICA DE TRADUCCIÓN DE DÍAS ---
+    public String getDiasFormateados() {
+        if (diasActivos.isEmpty()) return "Solo 1 vez";
+        if (diasActivos.size() == 7) return "Todos los días";
+        
+        boolean laborables = diasActivos.contains(1) && diasActivos.contains(2) && 
+                             diasActivos.contains(3) && diasActivos.contains(4) && 
+                             diasActivos.contains(5) && diasActivos.size() == 5;
+        if (laborables) return "Laborables";
+        
+        boolean findes = diasActivos.contains(6) && diasActivos.contains(7) && diasActivos.size() == 2;
+        if (findes) return "Fines de semana";
+        
+        String[] nombres = {"", "L", "M", "X", "J", "V", "S", "D"};
+        StringBuilder sb = new StringBuilder();
+        for (int i = 1; i <= 7; i++) {
+            if (diasActivos.contains(i)) sb.append(nombres[i]).append("-");
+        }
+        if (sb.length() > 0) sb.setLength(sb.length() - 1); // Quitar el último guion
+        return sb.toString();
+    }
+
     @Override
     public String toString() {
         String estado = estaActiva ? "ON" : "OFF";
         String extras = "";
-        
         if (retoMatematico != null) extras += "[Reto Matemático] ";
         if (configuracionCircadiana != null) extras += "[Modo Circadiano] ";
         
-        return String.format("%s - %s (%s) | Vol: %d/10 | Tono: %s %s", 
-            hora.toString(), etiqueta, estado, volumen, tonoSonido, extras);
+        // Ahora imprimimos también los días de repetición
+        return String.format("%s - %s (%s) | %s | Vol: %d/10 | Tono: %s %s", 
+            hora.toString(), etiqueta, estado, getDiasFormateados(), volumen, tonoSonido, extras);
     }
 }
