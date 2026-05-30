@@ -1,34 +1,129 @@
 import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
         GestorAlarmas gestor = new GestorAlarmas();
+        Scanner scanner = new Scanner(System.in);
+        boolean salir = false;
 
-        // 1. Crear alarma normal
-        Alarma alarma1 = new Alarma("1", "Trabajo", LocalTime.of(7, 0));
-        gestor.agregarAlarma(alarma1);
+        System.out.println("======================================");
+        System.out.println("⏰ BIENVENIDO A TU SMART ALARM ⏰");
+        System.out.println("======================================");
 
-        // 2. Crear alarma avanzada (Circadiana + Reto Matemático)
-        Alarma alarma2 = new Alarma("2", "Estudio", LocalTime.of(8, 30));
-        alarma2.setConfiguracionCircadiana(new ConfiguracionCircadiana(15, true));
-        alarma2.setRetoMatematico(new RetoMatematico());
-        gestor.agregarAlarma(alarma2);
+        while (!salir) {
+            System.out.println("\n--- MENÚ PRINCIPAL ---");
+            System.out.println("1. Crear nueva alarma");
+            System.out.println("2. Eliminar una alarma");
+            System.out.println("3. Ver próximas alarmas");
+            System.out.println("4. Simular que suena una alarma");
+            System.out.println("5. Ver perfil de estadísticas");
+            System.out.println("6. Salir");
+            System.out.print("Elige una opción: ");
 
-        // 3. Consultar próximas alarmas
-        System.out.println("\nPróximas alarmas:");
-        for (Alarma a : gestor.getProximasAlarmas()) {
-            System.out.println(a.toString());
+            String opcion = scanner.nextLine();
+
+            switch (opcion) {
+                case "1":
+                    crearAlarmaInteractiva(gestor, scanner);
+                    break;
+                case "2":
+                    System.out.print("Introduce el ID de la alarma a eliminar: ");
+                    String idEliminar = scanner.nextLine();
+                    gestor.eliminarAlarma(idEliminar);
+                    break;
+                case "3":
+                    System.out.println("\n--- TUS ALARMAS ---");
+                    if (gestor.getProximasAlarmas().isEmpty()) {
+                        System.out.println("No hay alarmas activas.");
+                    } else {
+                        for (Alarma a : gestor.getProximasAlarmas()) {
+                            System.out.println("ID: " + a.getId() + " | " + a.toString());
+                        }
+                    }
+                    break;
+                case "4":
+                    simularAlarmaSonando(gestor, scanner);
+                    break;
+                case "5":
+                    gestor.getEstadisticas().imprimirEstadisticas();
+                    break;
+                case "6":
+                    salir = true;
+                    System.out.println("Apagando despertador... ¡Hasta la próxima!");
+                    break;
+                default:
+                    System.out.println("Opción no válida. Inténtalo de nuevo.");
+            }
+        }
+        scanner.close();
+    }
+
+    private static void crearAlarmaInteractiva(GestorAlarmas gestor, Scanner scanner) {
+        System.out.print("Introduce un ID único (ej. 1, 2, A): ");
+        String id = scanner.nextLine();
+        
+        System.out.print("Etiqueta (ej. Trabajo, Gimnasio): ");
+        String etiqueta = scanner.nextLine();
+        
+        System.out.print("Hora en formato HH:MM (ej. 07:30): ");
+        String horaStr = scanner.nextLine();
+        
+        try {
+            LocalTime hora = LocalTime.parse(horaStr);
+            Alarma nuevaAlarma = new Alarma(id, etiqueta, hora);
+            
+            System.out.print("¿Añadir modo Circadiano y Reto Matemático? (s/n): ");
+            if (scanner.nextLine().equalsIgnoreCase("s")) {
+                nuevaAlarma.setConfiguracionCircadiana(new ConfiguracionCircadiana(15, true));
+                nuevaAlarma.setRetoMatematico(new RetoMatematico());
+                System.out.println("Funcionalidades avanzadas activadas.");
+            }
+            
+            gestor.agregarAlarma(nuevaAlarma);
+            
+        } catch (DateTimeParseException e) {
+            System.out.println("Error: El formato de la hora es incorrecto. Usa HH:MM.");
+        }
+    }
+
+    private static void simularAlarmaSonando(GestorAlarmas gestor, Scanner scanner) {
+        if (gestor.getProximasAlarmas().isEmpty()) {
+            System.out.println("No hay alarmas para hacer sonar.");
+            return;
+        }
+        
+        // Hacemos sonar la primera alarma por defecto para simular
+        Alarma alarmaActual = gestor.getProximasAlarmas().get(0);
+        gestor.dispararAlarma(alarmaActual);
+
+        // Si tiene reto matemático, le obligamos a responder
+        if (alarmaActual.getRetoMatematico() != null) {
+            boolean retoSuperado = false;
+            while (!retoSuperado) {
+                System.out.print("Respuesta: ");
+                try {
+                    int respuestaUsuario = Integer.parseInt(scanner.nextLine());
+                    if (alarmaActual.getRetoMatematico().verificarRespuesta(respuestaUsuario)) {
+                        System.out.println("¡Correcto! Reto superado.");
+                        retoSuperado = true;
+                    } else {
+                        System.out.println("Incorrecto. La alarma sigue sonando... ¡Despierta!");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Por favor, introduce un número.");
+                }
+            }
         }
 
-        // 4. Simular que suena la alarma 2 y el usuario la pospone
-        System.out.println("\n--- Simulación de tiempo ---");
-        gestor.dispararAlarma(alarma2);
-        gestor.posponerAlarma(alarma2);
+        System.out.print("¿Qué deseas hacer? (1) Detener (2) Posponer (Snooze): ");
+        String accion = scanner.nextLine();
         
-        // 5. Simular apagar la alarma
-        gestor.detenerAlarma(alarma2);
-
-        // 6. Revisar estadísticas
-        gestor.getEstadisticas().imprimirEstadisticas();
+        if (accion.equals("2")) {
+            gestor.posponerAlarma(alarmaActual);
+        } else {
+            gestor.detenerAlarma(alarmaActual);
+        }
     }
 }
