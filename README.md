@@ -96,19 +96,21 @@ graph LR
     U((Usuario))
     
     A(Crear Alarma)
-    B(Configurar Reto Matemático)
-    C(Posponer Alarma)
-    D(Detener Alarma)
-    E(Consultar Estadísticas)
-    F(Resolver Reto Matemático)
+    B(Eliminar Alarma)
+    C(Configurar Reto Matemático)
+    D(Posponer Alarma)
+    E(Detener Alarma)
+    F(Consultar Estadísticas)
+    G(Resolver Reto Matemático)
 
     U --> A
     U --> B
     U --> C
     U --> D
     U --> E
+    U --> F
 
-    D -.->|<<extend>>| F
+    E -.->|<<extend>>| G
 ```
 
 ## 9. Especificación de Casos de Uso
