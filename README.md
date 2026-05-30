@@ -93,15 +93,22 @@ classDiagram
 
 ```mermaid
 graph LR
-    User((Usuario))
+    U((Usuario))
     
-    User --> (Crear Alarma)
-    User --> (Configurar Reto Matemático)
-    User --> (Posponer Alarma)
-    User --> (Detener Alarma)
-    User --> (Consultar Estadísticas)
+    A(Crear Alarma)
+    B(Configurar Reto Matemático)
+    C(Posponer Alarma)
+    D(Detener Alarma)
+    E(Consultar Estadísticas)
+    F(Resolver Reto Matemático)
 
-    (Detener Alarma) -.-> |<<extend>>| (Resolver Reto Matemático)
+    U --> A
+    U --> B
+    U --> C
+    U --> D
+    U --> E
+
+    D -.->|<<extend>>| F
 ```
 
 ## 9. Especificación de Casos de Uso
